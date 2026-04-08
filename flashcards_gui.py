@@ -153,7 +153,7 @@ def _inject_preset(html_path: str, preset_js: str) -> None:
 
 
 def _ensure_index_card(tab_id: str, grade: str, grade_slug: str, css_class: str,
-                       icon: str, desc: str) -> None:
+                       icon: str, desc: str, url_dir: str = "") -> None:
     """Add a grade card to index.html under the given tab if not already present."""
     index_path = os.path.join(BASE_DIR, "index.html")
     content = _read_text(index_path)
@@ -162,8 +162,9 @@ def _ensure_index_card(tab_id: str, grade: str, grade_slug: str, css_class: str,
     if filename in content:
         return
 
+    url_path = f"{url_dir}/{filename}" if url_dir else filename
     card_html = (
-        f'                <a href="https://bexiang.github.io/{filename}" '
+        f'                <a href="https://bexiang.github.io/{url_path}" '
         f'class="nav-card {css_class}">\n'
         f'                    <div class="card-header">\n'
         f'                        <span class="card-icon">{icon}</span>\n'
@@ -294,7 +295,7 @@ def _run_v5cat_and_move_html(*, config_path: str, html_dir: str) -> str:
     return final_path
 
 
-def _publish_html_to_github(*, html_path: str, publish_name: str = None) -> str:
+def _publish_html_to_github(*, html_path: str, publish_name: str = None, repo_subdir: str = None) -> str:
     """Publish the given HTML file to GitHub Pages."""
     publisher = os.path.join(BASE_DIR, "publish_github.py")
     if not os.path.exists(publisher):
@@ -305,6 +306,8 @@ def _publish_html_to_github(*, html_path: str, publish_name: str = None) -> str:
     cmd = [sys.executable, publisher, "--html-file", os.path.abspath(html_path)]
     if publish_name:
         cmd.extend(["--project-name", publish_name])
+    if repo_subdir:
+        cmd.extend(["--repo-subdir", repo_subdir])
 
     proc = subprocess.run(
         cmd,
@@ -1223,7 +1226,8 @@ class FlashcardsGUI:
             self._set_status("Publishing to cloud...", Colors.ACCENT_PRIMARY)
             self.root.update()
             publish_name = _slugify(out_basename) + "_" + _today_yyyymmdd()
-            published_url = _publish_html_to_github(html_path=html_path, publish_name=publish_name)
+            person_subdir = f"{info['key']}/html"
+            published_url = _publish_html_to_github(html_path=html_path, repo_subdir=person_subdir)
 
             # Update index.html with new link
             card_title = f"{out_basename}_{_today_yyyymmdd()}"
@@ -1309,11 +1313,11 @@ class FlashcardsGUI:
 
             self._set_status("Publishing to GitHub Pages...", Colors.ACCENT_PRIMARY)
             self.root.update()
-            published_url = _publish_html_to_github(html_path=grade_html_path)
+            published_url = _publish_html_to_github(html_path=grade_html_path, repo_subdir="wenyanwen")
 
             # Update index.html with new grade card if needed
             _ensure_index_card("chinese", grade, grade_slug,
-                               "chinese", "📖", "文言文背诵")
+                               "chinese", "📖", "文言文背诵", url_dir="wenyanwen")
             _publish_html_to_github(html_path=os.path.join(BASE_DIR, "index.html"))
         except Exception as e:
             self._set_status("Error occurred", Colors.ACCENT_LUCY)
@@ -1364,11 +1368,11 @@ class FlashcardsGUI:
 
             self._set_status("Publishing to GitHub Pages...", Colors.ACCENT_PRIMARY)
             self.root.update()
-            published_url = _publish_html_to_github(html_path=grade_html_path)
+            published_url = _publish_html_to_github(html_path=grade_html_path, repo_subdir="english_passage")
 
             # Update index.html with new grade card if needed
             _ensure_index_card("english", grade, grade_slug,
-                               "english", "🔤", "英语课文背诵")
+                               "english", "🔤", "英语课文背诵", url_dir="english_passage")
             _publish_html_to_github(html_path=os.path.join(BASE_DIR, "index.html"))
         except Exception as e:
             self._set_status("Error occurred", Colors.ACCENT_LUCY)
