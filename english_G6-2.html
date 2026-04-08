@@ -453,8 +453,8 @@
             </div>
             <h2>挖空模式</h2>
             <div class="pill-group" id="modeGroup">
-                <button class="pill active" onclick="selectBlankMode('pos', this)">词性挖空</button>
-                <button class="pill" onclick="selectBlankMode('random', this)">随机挖空</button>
+                <button class="pill" onclick="selectBlankMode('pos', this)">词性挖空</button>
+                <button class="pill active" onclick="selectBlankMode('random', this)">随机挖空</button>
             </div>
             <div class="sub-control" id="ratioControl" style="display:none">
                 <div class="pill-group">
@@ -618,7 +618,7 @@ const state = {
     selectedPreset: 0,
     isCustom: false,
     blankRatio: 0.5,
-    blankMode: 'pos',
+    blankMode: 'random',
     mode: 'blank',
     fullText: '',
     sentences: [],
