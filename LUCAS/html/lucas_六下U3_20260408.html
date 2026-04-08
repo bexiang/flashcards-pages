@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>英语学习闪卡-六下U3-20260408</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background-color: #f7f7f7;
+            color: #333;
+            line-height: 1.6;
+            max-width: 500px;
+            margin: 0 auto;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        /* 微信小程序样式 */
+        .weui-tab {
+            position: relative;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .weui-tab__panel {
+            box-sizing: border-box;
+            padding-bottom: 55px;
+            overflow: auto;
+            -webkit-overflow-scrolling: touch;
+            height: calc(100vh - 55px);
+        }
+        
+        .weui-tabbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            height: 55px;
+            background-color: #f7f7f7;
+            z-index: 500;
+            border-top: 1px solid #e5e5e5;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .weui-tabbar__item {
+            flex: 1;
+            text-align: center;
+            padding: 5px 0 0;
+            font-size: 0;
+            color: #999;
+        }
+        
+        .weui-tabbar__icon {
+            display: inline-block;
+            width: 27px;
+            height: 27px;
+        }
+        
+        .weui-tabbar__label {
+            font-size: 10px;
+            line-height: 1.8;
+            color: #999;
+        }
+        
+        .weui-tabbar__item.weui-bar__item_on {
+            color: #07C160;
+        }
+        
+        .weui-tabbar__item.weui-bar__item_on .weui-tabbar__label {
+            color: #07C160;
+        }
+        
+        /* 页面内容 */
+        .page {
+            padding: 15px;
+            background: #fff;
+            border-radius: 12px;
+            margin: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .page-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            padding-left: 5px;
+            border-left: 3px solid #07C160;
+        }
+        
+        /* 卡片样式 */
+        .card-container {
+            perspective: 1000px;
+            height: 280px;
+            margin-bottom: 20px;
+        }
+        
+        .card {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.3s;
+            transform-style: preserve-3d;
+            cursor: pointer;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+        
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .card-front {
+            background: linear-gradient(135deg, #07C160, #05a75a);
+            color: white;
+        }
+        
+        .card-back {
+            background: linear-gradient(135deg, #10aeff, #0f93e0);
+            color: white;
+            transform: rotateY(180deg);
+        }
+        
+        .card-content {
+            font-size: 22px;
+            text-align: center;
+            line-height: 1.4;
+            font-weight: bold;
+        }
+        
+        .card-note {
+            margin-top: 15px;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        /* 进度条 */
+        .progress-container {
+            background-color: #f1f1f1;
+            border-radius: 10px;
+            margin: 20px 0;
+            padding: 12px 15px;
+        }
+        
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .progress-bar {
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            height: 10px;
+            overflow: hidden;
+        }
+        
+        .progress {
+            background: linear-gradient(90deg, #07C160, #10aeff);
+            height: 100%;
+            width: 12.5%;
+            border-radius: 5px;
+            transition: width 0.3s ease;
+        }
+        
+        /* 按钮样式 */
+        .btn-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+            flex: 1;
+            margin: 0 5px;
+        }
+        
+        .btn-primary {
+            background-color: #07C160;
+            color: white;
+        }
+        
+        .btn-default {
+            background-color: #f1f1f1;
+            color: #333;
+        }
+        
+        .btn-success {
+            background-color: #07C160;
+            color: white;
+        }
+        
+        .btn-danger {
+            background-color: #ff6b6b;
+            color: white;
+        }
+        
+        .btn-warning {
+            background-color: #ffa726;
+            color: white;
+        }
+        
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .btn:active {
+            transform: scale(0.98);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        /* 提示信息 */
+        .hint {
+            text-align: center;
+            margin: 15px 0;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        /* 微信顶部导航 */
+        .weui-navbar {
+            display: flex;
+            position: relative;
+            z-index: 500;
+            background-color: #07C160;
+            color: white;
+            padding: 10px 15px;
+            align-items: center;
+        }
+        
+        .weui-navbar__title {
+            text-align: center;
+            font-size: 17px;
+            font-weight: bold;
+            flex: 1;
+        }
+        
+        /* 隐藏非活动页面 */
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* 学习统计 */
+        .stats-container {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #07C160;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        /* 元数据信息 */
+        .metadata-info {
+            text-align: center;
+            margin: 10px 0;
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <!-- 微信顶部导航 -->
+    <div class="weui-navbar">
+        <div class="weui-navbar__title">英语学习闪卡-六下U3-20260408</div>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="weui-tab">
+        <div class="weui-tab__panel">
+            <!-- 学习页面 -->
+            <div id="study-tab" class="tab-content active">
+                <div class="page">
+                    <div class="metadata-info">
+                        年级: 六下U3 | 日期: 20260408
+                    </div>
+                    
+                    <div class="page-title">学习模式</div>
+                    
+                    <div class="progress-container">
+                        <div class="progress-text">
+                            <span>学习进度</span>
+                            <span id="progress-percent">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress" id="progress"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-container">
+                        <div class="card" id="card">
+                            <div class="card-face card-front">
+                                <div class="card-content" id="chinese-text">加载中...</div>
+                                <div class="card-note">点击卡片查看英文</div>
+                            </div>
+                            <div class="card-face card-back">
+                                <div class="card-content" id="english-text">Loading...</div>
+                                <div class="card-note">点击卡片返回中文</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    
+                    <!-- 熟悉/不熟悉按钮 - 放在卡片下方显著位置 -->
+                    <div class="btn-group" style="margin: 25px 0; justify-content: center;">
+                        <button class="btn btn-success" id="familiar-btn" style="font-size: 20px; padding: 18px 30px; margin: 0 10px; min-width: 120px;">✓ 熟悉</button>
+                        <button class="btn btn-danger" id="unfamiliar-btn" style="font-size: 20px; padding: 18px 30px; margin: 0 10px; min-width: 120px;">✗ 不熟悉</button>
+                    </div>
+                    
+                    <div class="hint" style="margin-top: 15px; font-size: 16px; color: #07C160; font-weight: bold;">请选择熟悉程度以继续学习</div>
+                    
+                    <!-- 导航按钮 -->
+                    <div class="btn-group" style="margin-top: 20px; justify-content: center;">
+                        <button class="btn btn-secondary" id="prev-btn" style="font-size: 16px; padding: 12px 20px; margin: 0 5px;">← 上一条</button>
+                        <button class="btn btn-secondary" id="next-btn" style="font-size: 16px; padding: 12px 20px; margin: 0 5px;">下一条 →</button>
+                    </div>
+                    
+                    <!-- 控制按钮 -->
+                    <div class="btn-group" style="margin-top: 20px;">
+                        <button class="btn btn-primary" id="reset-btn" disabled>重新开始</button>
+                        <button class="btn btn-warning" id="mode-toggle-btn">切换到错题本模式</button>
+                    </div>
+                </div>
+                
+                <div class="page" style="margin-top: 15px;">
+                    <div class="page-title">学习统计</div>
+                    <div class="stats-container">
+                        <div class="stat-item">
+                            <div class="stat-value" id="total-cards">0</div>
+                            <div class="stat-label">总卡片数</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="current-card">0</div>
+                            <div class="stat-label">当前卡片</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="learned-cards">0</div>
+                            <div class="stat-label">已学习</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stats-container">
+                        <div class="stat-item">
+                            <div class="stat-value" id="familiar-cards" style="color: #07C160;">0</div>
+                            <div class="stat-label">已熟悉</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="unfamiliar-cards" style="color: #ff6b6b;">0</div>
+                            <div class="stat-label">需复习</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="mode-indicator">全部</div>
+                            <div class="stat-label">当前模式</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 底部标签栏 -->
+        <div class="weui-tabbar">
+            <div class="weui-tabbar__item weui-bar__item_on">
+                <div class="weui-tabbar__icon">
+                    <i class="fas fa-book" style="font-size: 24px;"></i>
+                </div>
+                <div class="weui-tabbar__label">学习</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const card = document.getElementById('card');
+            const englishText = document.getElementById('english-text');
+            const chineseText = document.getElementById('chinese-text');
+            // 移除上一张/下一张按钮的引用
+            const resetBtn = document.getElementById('reset-btn');
+            const familiarBtn = document.getElementById('familiar-btn');
+            const unfamiliarBtn = document.getElementById('unfamiliar-btn');
+            const modeToggleBtn = document.getElementById('mode-toggle-btn');
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const progressBar = document.getElementById('progress');
+            const progressPercent = document.getElementById('progress-percent');
+            const totalCardsSpan = document.getElementById('total-cards');
+            const currentCardSpan = document.getElementById('current-card');
+            const learnedCardsSpan = document.getElementById('learned-cards');
+            const familiarCardsSpan = document.getElementById('familiar-cards');
+            const unfamiliarCardsSpan = document.getElementById('unfamiliar-cards');
+            const modeIndicatorSpan = document.getElementById('mode-indicator');
+            
+            // 闪卡数据 - 由Python脚本动态生成
+            const flashcards = [
+        { english: "celebrate", chinese: "1. v. 庆祝；庆贺" },
+        { english: "celebration", chinese: "2. n. 庆祝；庆祝活动" },
+        { english: "calendar", chinese: "3. n. 日历；历法" },
+        { english: "lunar calendar", chinese: "4. 农历" },
+        { english: "full", chinese: "5. adj. 满的" },
+        { english: "be full of = be filled with", chinese: "6. 充满" },
+        { english: "post", chinese: "7. v. 发帖；寄；邮寄 n. 邮政；邮递；帖子" },
+        { english: "mostly", chinese: "8. adv. 主要地；一般地；通常" },
+        { english: "most", chinese: "9. adj. 最多的，大部分的 adv. 最 det./pron. 最多；大多数" },
+        { english: "traditional", chinese: "10. adj. 传统的；习俗的" },
+        { english: "tradition", chinese: "11. n. 传统；习俗" },
+        { english: "festival celebrations", chinese: "12. 节日庆祝活动" },
+        { english: "on the 15th day of the eighth month", chinese: "13. 农历八月十五日" },
+        { english: "the Chinese lunar calendar", chinese: "14. 中国农历" },
+        { english: "family reunions", chinese: "15. 家庭团聚" },
+        { english: "watch a full moon", chinese: "16. 赏满月" },
+        { english: "think of the story of Chang'e flying to the moon", chinese: "17. 想到嫦娥奔月的故事" },
+        { english: "miss her friends", chinese: "18. 想念她的朋友" },
+        { english: "decorate our houses with special autumn grass", chinese: "19. 用特殊的秋草装饰我们的房子" },
+        { english: "in a local tea house", chinese: "20. 在一个当地的茶屋" },
+        { english: "What a quiet night it was!", chinese: "21. 多么宁静的夜晚啊！" },
+        { english: "a harvest festival", chinese: "22. 一个丰收的节日" },
+        { english: "our most traditional food", chinese: "23. 对我们而言最传统的食物" },
+        { english: "a half-moon-shaped rice cake", chinese: "24. 一个半月形状的米糕" },
+        { english: "be different from", chinese: "25. 与……不同" },
+        { english: "with a history of...", chinese: "26. 有着……的历史" },
+        { english: "spread to many other countries", chinese: "27. 传播到其他很多国家" },
+        { english: "a big day for ...", chinese: "28. 对……来说重要的日子" },
+        { english: "How happy we were!", chinese: "29. 我们多开心啊！" }
+    ];
+            
+            let currentCardIndex = 0;
+            let learnedCards = new Set();
+            let familiarCards = new Set();
+            let unfamiliarCards = new Set();
+            let isMistakeMode = false;
+            let currentFlashcards = [...flashcards]; // 当前显示的卡片列表
+            
+            // 更新卡片内容
+            function updateCard() {
+                if (currentFlashcards.length === 0) {
+                    return;
+                }
+                
+                englishText.textContent = currentFlashcards[currentCardIndex].english;
+                chineseText.textContent = currentFlashcards[currentCardIndex].chinese;
+                currentCardSpan.textContent = currentCardIndex + 1;
+                // 总卡片数始终显示全部卡片的数量，而不是当前模式的卡片数
+                totalCardsSpan.textContent = flashcards.length;
+                learnedCardsSpan.textContent = learnedCards.size;
+                
+                // 更新熟悉度统计 - 确保总数正确
+                const totalCards = flashcards.length;
+                const familiarCount = familiarCards.size;
+                const unfamiliarCount = unfamiliarCards.size;
+                const unmarkedCount = totalCards - familiarCount - unfamiliarCount;
+                
+                // 显示熟悉和需复习的数量（需复习 = 不熟悉 + 未标记）
+                familiarCardsSpan.textContent = familiarCount;
+                unfamiliarCardsSpan.textContent = unfamiliarCount + unmarkedCount;
+                
+                // 更新模式指示器
+                modeIndicatorSpan.textContent = isMistakeMode ? '错题本' : '全部';
+                
+                // 更新按钮状态
+                resetBtn.disabled = currentFlashcards.length === 0;
+                // 熟悉/不熟悉按钮始终可用
+                familiarBtn.disabled = false;
+                unfamiliarBtn.disabled = false;
+                // 模式切换按钮始终可用
+                modeToggleBtn.disabled = false;
+                // 导航按钮状态管理
+                prevBtn.disabled = currentCardIndex === 0;
+                nextBtn.disabled = currentCardIndex === currentFlashcards.length - 1;
+                
+                // 更新进度条
+                const progress = ((currentCardIndex + 1) / currentFlashcards.length) * 100;
+                progressBar.style.width = `${progress}%`;
+                progressPercent.textContent = `${progress.toFixed(1)}%`;
+                
+                // 标记为已学习
+                learnedCards.add(currentCardIndex);
+                learnedCardsSpan.textContent = learnedCards.size;
+            }
+            
+            // 切换学习模式
+            function toggleMode() {
+                if (isMistakeMode) {
+                    // 从错题本模式切换到全部模式
+                    isMistakeMode = false;
+                    currentFlashcards = [...flashcards];
+                    modeToggleBtn.textContent = '切换到错题本模式';
+                    modeToggleBtn.className = 'btn btn-warning';
+                } else {
+                    // 从全部模式切换到错题本模式
+                    isMistakeMode = true;
+                    currentFlashcards = flashcards.filter((card, index) => unfamiliarCards.has(index));
+                    modeToggleBtn.textContent = '切换到全部模式';
+                    modeToggleBtn.className = 'btn btn-primary';
+                }
+                currentCardIndex = 0;
+                learnedCards.clear(); // 清空已学习记录，因为索引会改变
+                card.classList.remove('flipped');
+                updateCard();
+            }
+            
+            // 进入上一页
+            function goToPrevCard() {
+                if (currentCardIndex > 0) {
+                    card.classList.remove('flipped');
+                    // 等待翻转过半（150ms = 0.3s动画的一半）后再更新，避免看到新卡片答案
+                    setTimeout(function() {
+                        currentCardIndex--;
+                        updateCard();
+                    }, 150);
+                }
+            }
+
+            // 进入下一页
+            function goToNextCard() {
+                if (currentCardIndex < currentFlashcards.length - 1) {
+                    card.classList.remove('flipped');
+                    // 等待翻转过半（150ms = 0.3s动画的一半）后再更新，避免看到新卡片答案
+                    setTimeout(function() {
+                        currentCardIndex++;
+                        updateCard();
+                    }, 150);
+                } else {
+                    // 学习完成，检查是否需要继续学习
+                    checkAndHandleCompletion();
+                }
+            }
+            
+            // 检查并处理学习完成
+            function checkAndHandleCompletion() {
+                if (isMistakeMode) {
+                    // 错题本模式：检查是否还有需复习的卡片
+                    const totalCards = flashcards.length;
+                    const familiarCount = familiarCards.size;
+                    const unfamiliarCount = unfamiliarCards.size;
+                    const unmarkedCount = totalCards - familiarCount - unfamiliarCount;
+                    const needReviewCount = unfamiliarCount + unmarkedCount;
+                    
+                    if (needReviewCount > 0) {
+                        // 还有需复习的卡片，重新开始错题本学习
+                        const remainingUnfamiliar = flashcards.filter((card, index) => unfamiliarCards.has(index));
+                        currentFlashcards = remainingUnfamiliar;
+                        currentCardIndex = 0;
+                        learnedCards.clear();
+                        card.classList.remove('flipped');
+                        updateCard();
+                        return;
+                    }
+                }
+                // 全部模式或错题本模式中所有卡片都已熟悉，显示完成消息
+                showCompletionMessage();
+            }
+            
+            // 显示学习完成消息
+            function showCompletionMessage() {
+                const totalCards = flashcards.length;
+                const familiarCount = familiarCards.size;
+                const unfamiliarCount = unfamiliarCards.size;
+                const unmarkedCount = totalCards - familiarCount - unfamiliarCount;
+                const needReviewCount = unfamiliarCount + unmarkedCount;
+                
+                if (isMistakeMode) {
+                    alert(`🎉 错题本学习完成！
+
+所有不熟悉的卡片都已掌握！
+已熟悉: ${familiarCount} 张
+需复习: ${needReviewCount} 张
+总计: ${totalCards} 张
+
+点击"全部模式"查看所有卡片，或点击"重新开始"重新学习。`);
+                } else {
+                    alert(`全部卡片学习完成！
+已熟悉: ${familiarCount} 张
+需复习: ${needReviewCount} 张
+总计: ${totalCards} 张
+
+点击"错题本模式"专注复习不熟悉的卡片，或点击"重新开始"重新学习。`);
+                }
+            }
+            
+            // 标记为熟悉
+            function markAsFamiliar() {
+                if (currentFlashcards.length === 0) return;
+                const originalIndex = flashcards.findIndex(card => 
+                    card.english === currentFlashcards[currentCardIndex].english && 
+                    card.chinese === currentFlashcards[currentCardIndex].chinese
+                );
+                if (originalIndex !== -1) {
+                    familiarCards.add(originalIndex);
+                    unfamiliarCards.delete(originalIndex);
+                    updateCard();
+                    // 自动进入下一页
+                    setTimeout(goToNextCard, 500); // 延迟500ms让用户看到反馈
+                }
+            }
+            
+            // 标记为不熟悉
+            function markAsUnfamiliar() {
+                if (currentFlashcards.length === 0) return;
+                const originalIndex = flashcards.findIndex(card => 
+                    card.english === currentFlashcards[currentCardIndex].english && 
+                    card.chinese === currentFlashcards[currentCardIndex].chinese
+                );
+                if (originalIndex !== -1) {
+                    unfamiliarCards.add(originalIndex);
+                    familiarCards.delete(originalIndex);
+                    updateCard();
+                    // 自动进入下一页
+                    setTimeout(goToNextCard, 500); // 延迟500ms让用户看到反馈
+                }
+            }
+            
+            // 初始更新
+            if (flashcards.length > 0) {
+                updateCard();
+            }
+            
+            // 卡片点击事件 - 翻转
+            card.addEventListener('click', function() {
+                if (currentFlashcards.length === 0) return;
+                card.classList.toggle('flipped');
+            });
+            
+            // 移除上一张/下一张按钮的事件监听器
+            
+            // 重新开始按钮
+            resetBtn.addEventListener('click', function() {
+                currentCardIndex = 0;
+                learnedCards.clear();
+                familiarCards.clear();
+                unfamiliarCards.clear();
+                card.classList.remove('flipped');
+                // 重置为全部模式
+                isMistakeMode = false;
+                currentFlashcards = [...flashcards];
+                modeToggleBtn.textContent = '切换到错题本模式';
+                modeToggleBtn.className = 'btn btn-warning';
+                updateCard();
+            });
+            
+            // 移除随机排序按钮的事件监听器
+            
+            // 熟悉按钮
+            familiarBtn.addEventListener('click', function() {
+                markAsFamiliar();
+            });
+            
+            // 不熟悉按钮
+            unfamiliarBtn.addEventListener('click', function() {
+                markAsUnfamiliar();
+            });
+            
+            // 模式切换按钮
+            modeToggleBtn.addEventListener('click', function() {
+                toggleMode();
+            });
+            
+            // 导航按钮事件监听器
+            prevBtn.addEventListener('click', function() {
+                goToPrevCard();
+            });
+            
+            nextBtn.addEventListener('click', function() {
+                goToNextCard();
+            });
+            
+            // 移除触摸滑动支持，因为现在使用自动进入下一页模式
+        });
+    </script>
+</body>
+</html>
