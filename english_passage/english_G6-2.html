@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>英语背诵助手</title>
+    <style>
+        :root {
+            --primary: #4a90d9;
+            --primary-hover: #357abd;
+            --accent: #ffd93d;
+            --bg-1: #2193b0;
+            --bg-2: #6dd5ed;
+            --card: #ffffff;
+            --text: #2d3436;
+            --text-light: #636e72;
+            --blank-border: #b2bec3;
+            --revealed: #e17055;
+            --success: #00b894;
+            --radius: 16px;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'PingFang SC', sans-serif;
+            background: linear-gradient(135deg, var(--bg-1), var(--bg-2));
+            min-height: 100vh;
+            padding: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .app {
+            max-width: 740px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 24px;
+            padding: 12px;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 28px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+            animation: slideUp 0.4s ease;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card h2 {
+            font-size: 1.15rem;
+            color: var(--text);
+            margin-bottom: 14px;
+        }
+
+        .pill-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .pill {
+            padding: 8px 18px;
+            border-radius: 24px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text);
+            font-family: inherit;
+        }
+
+        .pill:hover { border-color: var(--primary); color: var(--primary); }
+
+        .pill.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        .custom-input { display: none; margin-bottom: 16px; }
+        .custom-input.show { display: block; }
+
+        .custom-input input,
+        .custom-input textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 15px;
+            font-family: inherit;
+            margin-bottom: 8px;
+            transition: border-color 0.2s;
+        }
+
+        .custom-input input:focus,
+        .custom-input textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .custom-input textarea { height: 120px; resize: vertical; }
+
+        .sub-heading {
+            font-size: 0.85em;
+            font-weight: normal;
+            color: var(--text-light);
+        }
+
+        .sub-control {
+            margin-bottom: 20px;
+            padding-left: 16px;
+            border-left: 3px solid var(--primary);
+        }
+
+        .sub-control .pill-group {
+            margin-bottom: 0;
+            align-items: center;
+        }
+
+        .sub-control .sub-label {
+            font-size: 14px;
+            color: var(--text-light);
+            white-space: nowrap;
+        }
+
+        .start-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--primary), #2980b9);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-family: inherit;
+        }
+
+        .start-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(74, 144, 217, 0.4);
+        }
+
+        .start-btn:active { transform: translateY(0); }
+
+        .practice-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .title-group h2 { margin-bottom: 2px; }
+
+        .mode-tabs {
+            display: flex;
+            background: #f1f2f6;
+            border-radius: 10px;
+            padding: 3px;
+        }
+
+        .mode-tab {
+            padding: 8px 16px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.2s;
+            color: var(--text-light);
+        }
+
+        .mode-tab.active {
+            background: white;
+            color: var(--text);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .text-display {
+            background: #fffdf7;
+            border: 1px solid #f0ece3;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 8px;
+            min-height: 120px;
+            max-height: 55vh;
+            overflow-y: auto;
+        }
+
+        .text-display.full-mode {
+            line-height: 1.9;
+            font-size: 19px;
+            color: var(--text);
+        }
+
+        .text-display.full-mode p {
+            margin-bottom: 14px;
+        }
+
+        .text-display.full-mode p:last-child {
+            margin-bottom: 0;
+        }
+
+        .sentence-line {
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border-left: 3px solid transparent;
+            line-height: 2;
+            word-spacing: 0.26em;
+            transition: all 0.3s;
+        }
+
+        .sentence-line.current {
+            background: #fff8e1;
+            border-left-color: #ffb300;
+        }
+
+        .sentence-line.done {
+            background: #e8f5e9;
+            border-left-color: var(--success);
+        }
+
+        .sentence-line.waiting { opacity: 0.6; }
+
+        .word {
+            display: inline-block;
+            font-size: 19px;
+            transition: color 0.3s;
+        }
+
+        .punct {
+            display: inline;
+            font-size: 19px;
+            color: var(--text);
+        }
+
+        .word.visible { color: var(--text); }
+
+        .word.blank-hidden {
+            color: transparent;
+            border-bottom: 2px dashed var(--blank-border);
+            cursor: pointer;
+            background: rgba(0, 0, 0, 0.02);
+            border-radius: 2px 2px 0 0;
+            transition: color 0.3s, border-color 0.3s;
+        }
+
+        .word.blank-hidden.peeking {
+            color: #ffb300;
+            border-bottom-color: transparent;
+        }
+
+        .word.blank-revealed {
+            color: var(--revealed);
+        }
+
+        .word.blank-revealed.new {
+            animation: popIn 0.4s ease both;
+            animation-delay: calc(var(--i, 0) * 0.08s);
+        }
+
+        @keyframes popIn {
+            0% { color: transparent; transform: scale(0.5); }
+            60% { color: var(--revealed); transform: scale(1.15); }
+            100% { color: var(--revealed); transform: scale(1); }
+        }
+
+        .hint-text {
+            text-align: center;
+            font-size: 13px;
+            color: #b2bec3;
+            margin-bottom: 16px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            position: sticky;
+            top: 0;
+            background: var(--card);
+            margin: 0 -28px;
+            padding: 16px 28px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+            z-index: 10;
+            margin-bottom: 16px;
+        }
+
+        .progress-info { font-size: 14px; color: var(--text-light); }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #f1f2f6;
+            border-radius: 3px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success), #55efc4);
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
+
+        .action-btn {
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: none;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+            font-weight: 500;
+        }
+
+        .action-btn.primary {
+            background: linear-gradient(135deg, var(--primary), #2980b9);
+            color: white;
+        }
+
+        .action-btn.primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(74, 144, 217, 0.3);
+        }
+
+        .action-btn.primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .action-btn.secondary { background: #f1f2f6; color: var(--text); }
+        .action-btn.secondary:hover { background: #dfe6e9; }
+
+        .completion {
+            text-align: center;
+            padding: 24px 0 8px;
+            display: none;
+        }
+
+        .completion.show {
+            display: block;
+            animation: bounceIn 0.6s ease;
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            60% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .completion .icon { font-size: 48px; margin-bottom: 8px; }
+
+        .completion .message {
+            font-size: 18px;
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .completion .sub-message {
+            font-size: 14px;
+            color: var(--text-light);
+            margin-top: 4px;
+        }
+
+        @media (max-width: 480px) {
+            body { padding: 12px; }
+            .card { padding: 18px; }
+            .header h1 { font-size: 1.5rem; }
+            .word, .punct { font-size: 16px; }
+            .text-display { padding: 14px; }
+            .text-display.full-mode { font-size: 16px; }
+            .practice-header { flex-direction: column; align-items: flex-start; }
+            .btn-group { width: 100%; }
+            .btn-group .action-btn { flex: 1; padding: 10px 8px; font-size: 14px; text-align: center; }
+            .controls {
+                margin: 0 -18px;
+                padding: 12px 18px;
+                margin-bottom: 12px;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .app { max-width: 860px; }
+            .card { padding: 36px; }
+            .header h1 { font-size: 2.4rem; }
+            .word, .punct { font-size: 22px; }
+            .text-display { padding: 32px; }
+            .text-display.full-mode { font-size: 22px; }
+            .sentence-line { padding: 10px 16px; margin-bottom: 12px; }
+            .pill { padding: 10px 22px; font-size: 16px; }
+            .start-btn { padding: 16px; font-size: 20px; }
+            .action-btn { padding: 12px 24px; font-size: 16px; }
+            .controls {
+                margin: 0 -36px;
+                padding: 20px 36px;
+                margin-bottom: 20px;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .app { max-width: 960px; }
+            .word, .punct { font-size: 24px; }
+            .text-display.full-mode { font-size: 24px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <div class="header">
+            <h1>📖 英语背诵助手</h1>
+        </div>
+
+        <div class="card" id="settingsCard">
+            <h2>选择课文</h2>
+            <div class="pill-group" id="presetGroup"></div>
+            <div class="custom-input" id="customInput">
+                <input type="text" id="titleInput" placeholder="输入标题">
+                <textarea id="textInput" placeholder="在此粘贴或输入英语内容…"></textarea>
+            </div>
+            <h2>挖空模式</h2>
+            <div class="pill-group" id="modeGroup">
+                <button class="pill" onclick="selectBlankMode('pos', this)">词性挖空</button>
+                <button class="pill active" onclick="selectBlankMode('random', this)">随机挖空</button>
+            </div>
+            <div class="sub-control" id="ratioControl" style="display:none">
+                <div class="pill-group">
+                    <span class="sub-label">随机难度：</span>
+                    <button class="pill" onclick="setDifficulty(0.3, this)">简单</button>
+                    <button class="pill active" onclick="setDifficulty(0.5, this)">中等</button>
+                    <button class="pill" onclick="setDifficulty(0.7, this)">困难</button>
+                </div>
+            </div>
+            <button class="start-btn" onclick="startPractice()">开始练习</button>
+        </div>
+
+        <div class="card" id="practiceCard" style="display:none">
+            <div class="practice-header">
+                <div class="title-group">
+                    <h2 id="practiceTitle"></h2>
+                </div>
+                <div class="mode-tabs">
+                    <button class="mode-tab" id="tabFull" onclick="setMode('full')">整篇显示</button>
+                    <button class="mode-tab active" id="tabBlank" onclick="setMode('blank')">挖空背诵</button>
+                </div>
+            </div>
+            <div class="controls" id="blankControls">
+                <div style="flex:1;min-width:160px">
+                    <div class="progress-info" id="progressText">第 0 / 0 句</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill" style="width:0%"></div>
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button class="action-btn primary" id="nextBtn" onclick="revealNext()">显示下一句</button>
+                    <button class="action-btn secondary" onclick="restart()">重新开始</button>
+                    <button class="action-btn secondary" onclick="backToSettings()">返回</button>
+                </div>
+            </div>
+            <div class="text-display" id="textDisplay"></div>
+            <div class="hint-text" id="hintText">💡 点击空白单词可偷看答案，按空格键或回车键显示下一句</div>
+            <div class="completion" id="completion">
+                <div class="icon">🎉</div>
+                <div class="message">太棒了！全部背诵完成！</div>
+                <div class="sub-message">再来一次巩固记忆吧</div>
+            </div>
+        </div>
+    </div>
+
+<script>
+const presets = [
+    {
+        title: "My Family Rules",
+        text: "Family rules are important. They help keep things in order and make us live happily. We have some helpful family rules.\n\nFirst, it\u2019s everyone\u2019s duty to do family chores. Sharing chores not only teaches me some life skills, but also gives my parents more time to relax.\n\nSecond, no phones during meals. Meal time is a good time for us to share stories and ideas. It helps us connect with each other better.\n\nThird, we respect each other. When my parents talk to me, I listen carefully. We never shout at each other.\n\nAll my family members should follow these rules because rules make our home warm and full of love."
+    },
+    {
+        title: 'Recommend Paul for Music Club',
+        text: "I want to recommend Paul for our school Music Club. Paul is an exchange student from Swan Middle School. He has many shining points that make him ideal member of our club.\n\nFirst of all, he is talented in music. He has a beautiful voice and can play guitar skillfully. He is suitable for both solo's and group shows.\n\nBesides, Paul is outgoing and warm-hearted. He can get along well with other members and easy to work with.\n\nWhat's more, Paul likes trying new things. He wants to learn Chinese classic music from us and share his own culture through music. That will make our club activities more colorful.\n\nI am sure he is the right person for our club. I hope he can join us."
+    }
+];
+
+/* ── POS Dictionaries ── */
+
+const EN_NOUNS = new Set([
+    'school', 'music', 'club', 'student', 'exchange', 'point', 'member',
+    'voice', 'guitar', 'solo', 'group', 'show', 'thing', 'culture',
+    'activity', 'person',
+    'name', 'time', 'year', 'people', 'way', 'day', 'man', 'woman',
+    'child', 'children', 'world', 'life', 'hand', 'part', 'place',
+    'week', 'number', 'night', 'home', 'water', 'room', 'mother',
+    'money', 'story', 'fact', 'book', 'eye', 'job', 'word', 'friend',
+    'father', 'hour', 'game', 'line', 'end', 'family', 'city',
+    'teacher', 'class', 'country', 'problem', 'food', 'door',
+    'morning', 'table', 'face', 'car', 'dog', 'cat', 'team', 'idea',
+    'body', 'parent', 'age', 'office', 'boy', 'girl', 'brother',
+    'sister', 'song', 'sport', 'color', 'language', 'subject',
+    'lesson', 'homework', 'test', 'exam', 'grade', 'dream', 'future',
+    'heart', 'mind', 'reason', 'result', 'experience', 'practice',
+    'habit', 'ability', 'talent', 'skill', 'knowledge', 'art',
+    'dance', 'movie', 'picture', 'photo', 'letter', 'message',
+    'news', 'paper', 'plan', 'rule', 'example', 'question', 'answer',
+    'head', 'house', 'side', 'ball', 'birthday', 'holiday', 'weather',
+    'animal', 'flower', 'tree', 'mountain', 'river', 'sea', 'sky',
+    'star', 'sun', 'moon', 'earth', 'nature', 'garden',
+    'dinner', 'lunch', 'breakfast', 'toy', 'gift', 'price', 'market',
+    'street', 'road', 'bridge', 'park', 'library', 'museum',
+    'hospital', 'station', 'airport', 'hotel', 'restaurant',
+]);
+
+const EN_VERBS = new Set([
+    'be', 'is', 'am', 'are', 'was', 'were', 'been',
+    'have', 'has', 'had',
+    'do', 'does', 'did', 'done',
+    'can', 'could', 'will', 'would', 'shall', 'should', 'may', 'might', 'must',
+    'want', 'recommend', 'make', 'made', 'play', 'get', 'got', 'work', 'like',
+    'try', 'learn', 'share', 'join', 'hope',
+    'say', 'said', 'go', 'went', 'gone', 'know', 'knew', 'known',
+    'take', 'took', 'taken', 'see', 'saw', 'seen',
+    'come', 'came', 'think', 'thought', 'look',
+    'give', 'gave', 'given', 'use', 'find', 'found',
+    'tell', 'told', 'ask', 'feel', 'felt',
+    'leave', 'left', 'call', 'need', 'become', 'became',
+    'keep', 'kept', 'let', 'begin', 'began', 'begun',
+    'hear', 'heard', 'run', 'ran', 'move', 'live',
+    'bring', 'brought', 'happen', 'write', 'wrote', 'written',
+    'sit', 'sat', 'stand', 'stood', 'lose', 'lost',
+    'pay', 'paid', 'meet', 'met', 'include', 'set', 'change',
+    'lead', 'led', 'understand', 'understood', 'watch', 'follow',
+    'stop', 'create', 'speak', 'spoke', 'spoken', 'read',
+    'spend', 'spent', 'grow', 'grew', 'grown', 'open', 'walk',
+    'win', 'won', 'teach', 'taught', 'remember', 'love',
+    'buy', 'bought', 'wait', 'send', 'sent', 'build', 'built',
+    'stay', 'fall', 'fell', 'eat', 'ate', 'eaten',
+    'sing', 'sang', 'sung', 'drink', 'drank', 'sleep', 'slept',
+    'enjoy', 'help', 'start', 'finish', 'put', 'hold', 'held',
+    'carry', 'miss', 'wear', 'wore', 'worn', 'draw', 'drew',
+    'swim', 'swam', 'ride', 'rode', 'drive', 'drove',
+    'fly', 'flew', 'break', 'broke', 'dance', 'clean', 'cook',
+    'wish', 'study', 'turn', 'close', 'pick',
+    'pull', 'push', 'pass', 'reach', 'raise', 'serve',
+    'decide', 'believe', 'seem', 'appear', 'die', 'offer',
+    'consider', 'prepare', 'check', 'choose', 'chose',
+    'develop', 'continue', 'add', 'practice',
+]);
+
+const EN_ADJECTIVES = new Set([
+    'shining', 'ideal', 'talented', 'beautiful', 'skillful', 'suitable',
+    'outgoing', 'warm-hearted', 'easy', 'new', 'classic', 'colorful',
+    'right', 'own', 'many', 'other', 'sure', 'more',
+    'good', 'great', 'big', 'small', 'old', 'young', 'long', 'short',
+    'high', 'low', 'large', 'little', 'important', 'different', 'same',
+    'early', 'late', 'hard', 'best', 'better', 'bad', 'worse', 'worst',
+    'real', 'possible', 'whole', 'free', 'full', 'special', 'strong',
+    'true', 'happy', 'sad', 'angry', 'afraid', 'able', 'ready',
+    'clear', 'simple', 'hot', 'cold', 'warm', 'cool',
+    'dark', 'light', 'fine', 'nice', 'pretty', 'poor', 'rich',
+    'common', 'wrong', 'fast', 'slow', 'quick', 'careful', 'brave',
+    'clever', 'smart', 'kind', 'friendly', 'busy', 'quiet', 'loud',
+    'soft', 'heavy', 'thin', 'thick', 'wide', 'deep', 'dry', 'wet',
+    'fresh', 'clean', 'dirty', 'safe', 'dangerous', 'healthy', 'sick',
+    'tired', 'lazy', 'polite', 'patient', 'nervous',
+    'exciting', 'excited', 'interesting', 'interested',
+    'boring', 'bored', 'amazing', 'amazed', 'surprising', 'surprised',
+    'wonderful', 'terrible', 'excellent', 'perfect', 'popular', 'famous',
+    'proud', 'lucky', 'alone', 'difficult', 'favorite',
+    'creative', 'active', 'positive', 'modern', 'traditional',
+    'useful', 'helpful', 'powerful', 'successful',
+]);
+
+const EN_ADVERBS = new Set([
+    'first', 'besides', 'well', 'skillfully', 'along', 'more',
+    'not', 'also', 'very', 'often', 'too', 'usually', 'really',
+    'already', 'always', 'never', 'sometimes', 'together',
+    'quickly', 'slowly', 'finally', 'again', 'once', 'still',
+    'almost', 'especially', 'here', 'there', 'just', 'only',
+    'quite', 'rather', 'ever', 'yet', 'soon', 'suddenly',
+    'certainly', 'probably', 'actually', 'carefully', 'clearly',
+    'simply', 'nearly', 'hardly', 'easily', 'happily',
+    'sadly', 'luckily', 'seriously', 'quietly', 'loudly',
+    'freely', 'truly', 'deeply', 'highly', 'widely',
+    'enough', 'even', 'perhaps', 'however', 'instead',
+    'therefore', 'otherwise', 'anyway', 'exactly',
+    'immediately', 'recently', 'mainly', 'mostly',
+]);
+
+/* ── State ── */
+
+const state = {
+    selectedPreset: 0,
+    isCustom: false,
+    blankRatio: 0.5,
+    blankMode: 'random',
+    mode: 'blank',
+    fullText: '',
+    sentences: [],
+    tokens: [],
+    revealedCount: 0,
+    blankMap: [],
+    justRevealed: -1
+};
+
+/* ── Helpers ── */
+
+function matchesSet(word, set) {
+    let w = word.toLowerCase();
+    if (w.endsWith("'s")) w = w.slice(0, -2);
+    if (set.has(w)) return true;
+    if (w.includes('-') && w.split('-').some(p => set.has(p))) return true;
+    if (w.endsWith('s') && w.length > 2 && set.has(w.slice(0, -1))) return true;
+    if (w.endsWith('es') && w.length > 3 && set.has(w.slice(0, -2))) return true;
+    if (w.endsWith('ies') && w.length > 4 && set.has(w.slice(0, -3) + 'y')) return true;
+    if (w.endsWith('ed') && w.length > 3) {
+        if (set.has(w.slice(0, -2)) || set.has(w.slice(0, -1))) return true;
+    }
+    if (w.endsWith('ing') && w.length > 4) {
+        if (set.has(w.slice(0, -3)) || set.has(w.slice(0, -3) + 'e')) return true;
+    }
+    return false;
+}
+
+function tokenize(sentence) {
+    const tokens = [];
+    const regex = /([a-zA-Z](?:[a-zA-Z'\u2019-]*[a-zA-Z])?)|([^\sa-zA-Z]+)|(\s+)/g;
+    let m;
+    while ((m = regex.exec(sentence)) !== null) {
+        if (m[1]) tokens.push({ text: m[1], type: 'word' });
+        else if (m[2]) tokens.push({ text: m[2], type: 'punct' });
+        else if (m[3]) tokens.push({ text: m[3], type: 'space' });
+    }
+    return tokens;
+}
+
+function splitSentences(text) {
+    const result = [];
+    let lastIdx = 0;
+    const regex = /[^.!?]*[.!?]+/g;
+    let m;
+    while ((m = regex.exec(text)) !== null) {
+        const s = m[0].trim();
+        if (s) result.push(s);
+        lastIdx = regex.lastIndex;
+    }
+    const rest = text.slice(lastIdx).trim();
+    if (rest) result.push(rest);
+    return result;
+}
+
+function generateBlankMap() {
+    return state.tokens.map(tokens =>
+        tokens.map(tok => {
+            if (tok.type !== 'word') return false;
+            if (state.blankMode === 'random') {
+                return Math.random() < state.blankRatio;
+            }
+            for (const set of [EN_NOUNS, EN_VERBS, EN_ADJECTIVES, EN_ADVERBS]) {
+                if (matchesSet(tok.text, set)) return true;
+            }
+            return false;
+        })
+    );
+}
+
+/* ── UI ── */
+
+function initPresetButtons() {
+    const g = document.getElementById('presetGroup');
+    g.innerHTML = presets.map((p, i) =>
+        `<button class="pill${i === 0 ? ' active' : ''}" data-idx="${i}" onclick="selectPreset(${i},this)">${p.title}</button>`
+    ).join('') + '<button class="pill" onclick="selectCustom(this)">自定义</button>';
+}
+
+function selectPreset(i, btn) {
+    state.selectedPreset = i;
+    state.isCustom = false;
+    document.querySelectorAll('#presetGroup .pill').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('customInput').classList.remove('show');
+}
+
+function selectCustom(btn) {
+    state.isCustom = true;
+    document.querySelectorAll('#presetGroup .pill').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('customInput').classList.add('show');
+}
+
+function selectBlankMode(mode, btn) {
+    state.blankMode = mode;
+    document.querySelectorAll('#modeGroup .pill').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('ratioControl').style.display =
+        mode === 'random' ? 'block' : 'none';
+}
+
+function setDifficulty(ratio, btn) {
+    state.blankRatio = ratio;
+    document.querySelectorAll('#ratioControl .pill').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+}
+
+function startPractice() {
+    let title, text;
+    if (state.isCustom) {
+        title = document.getElementById('titleInput').value.trim() || '自定义课文';
+        text = document.getElementById('textInput').value.trim();
+        if (!text) { alert('请输入英语内容！'); return; }
+    } else {
+        const p = presets[state.selectedPreset];
+        title = p.title; text = p.text;
+    }
+
+    state.fullText = text;
+    state.sentences = splitSentences(text);
+    state.tokens = state.sentences.map(s => tokenize(s));
+    state.blankMap = generateBlankMap();
+    state.revealedCount = 0;
+    state.mode = 'blank';
+
+    document.getElementById('practiceTitle').textContent = title;
+    document.getElementById('settingsCard').style.display = 'none';
+
+    const card = document.getElementById('practiceCard');
+    card.style.display = 'block';
+    card.style.animation = 'none';
+    requestAnimationFrame(() => { card.style.animation = ''; });
+
+    document.getElementById('tabFull').classList.remove('active');
+    document.getElementById('tabBlank').classList.add('active');
+    document.getElementById('completion').classList.remove('show');
+    render();
+}
+
+function setMode(mode) {
+    state.mode = mode;
+    document.getElementById('tabFull').classList.toggle('active', mode === 'full');
+    document.getElementById('tabBlank').classList.toggle('active', mode === 'blank');
+    document.getElementById('blankControls').style.display = mode === 'blank' ? 'flex' : 'none';
+    document.getElementById('hintText').style.display = mode === 'blank' ? 'block' : 'none';
+    render();
+}
+
+function render() {
+    const display = document.getElementById('textDisplay');
+
+    if (state.mode === 'full') {
+        display.className = 'text-display full-mode';
+        display.innerHTML = state.fullText
+            .split(/\n\s*\n/)
+            .map(p => `<p>${p.replace(/\n/g, ' ').replace(/</g, '&lt;')}</p>`)
+            .join('');
+        return;
+    }
+
+    display.className = 'text-display';
+    let html = '';
+
+    state.tokens.forEach((tokens, si) => {
+        const revealed = si < state.revealedCount;
+        const current = si === state.revealedCount;
+        const cls = revealed ? 'done' : current ? 'current' : 'waiting';
+        html += `<div class="sentence-line ${cls}">`;
+        let blankIdx = 0;
+        tokens.forEach((tok, ti) => {
+            if (tok.type === 'space') {
+                html += ' ';
+            } else if (tok.type === 'punct') {
+                html += `<span class="punct">${tok.text}</span>`;
+            } else if (!state.blankMap[si][ti]) {
+                html += `<span class="word visible">${tok.text}</span>`;
+            } else if (revealed) {
+                const isNew = si === state.justRevealed ? ' new' : '';
+                html += `<span class="word blank-revealed${isNew}" style="--i:${blankIdx++}">${tok.text}</span>`;
+            } else {
+                html += `<span class="word blank-hidden">${tok.text}</span>`;
+            }
+        });
+        html += '</div>';
+    });
+
+    display.innerHTML = html;
+    updateProgress();
+}
+
+function updateProgress() {
+    const total = state.sentences.length;
+    const done = state.revealedCount;
+    document.getElementById('progressText').textContent = `第 ${done} / ${total} 句`;
+    document.getElementById('progressFill').style.width = `${(done / total) * 100}%`;
+    document.getElementById('nextBtn').disabled = done >= total;
+
+    const comp = document.getElementById('completion');
+    if (done >= total) { comp.classList.add('show'); }
+    else { comp.classList.remove('show'); }
+}
+
+function revealNext() {
+    if (state.revealedCount >= state.sentences.length) return;
+    state.justRevealed = state.revealedCount;
+    state.revealedCount++;
+    render();
+    const cur = document.querySelector('.sentence-line.current');
+    if (cur) {
+        const box = document.getElementById('textDisplay');
+        const top = cur.offsetTop - box.offsetTop - box.clientHeight / 2 + cur.clientHeight / 2;
+        box.scrollTo({ top: top, behavior: 'smooth' });
+    }
+}
+
+function restart() {
+    state.blankMap = generateBlankMap();
+    state.revealedCount = 0;
+    state.justRevealed = -1;
+    document.getElementById('completion').classList.remove('show');
+    render();
+    document.getElementById('textDisplay').scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function backToSettings() {
+    document.getElementById('settingsCard').style.display = 'block';
+    document.getElementById('practiceCard').style.display = 'none';
+}
+
+/* peek on click */
+document.getElementById('textDisplay').addEventListener('click', e => {
+    const t = e.target;
+    if (!t.classList.contains('blank-hidden')) return;
+    if (t.classList.contains('peeking')) return;
+    t.classList.add('peeking');
+    setTimeout(() => t.classList.remove('peeking'), 1200);
+});
+
+/* keyboard shortcuts */
+document.addEventListener('keydown', e => {
+    if (document.getElementById('practiceCard').style.display === 'none') return;
+    if (state.mode !== 'blank') return;
+    if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') return;
+    if (e.key === ' ' || e.key === 'Enter' || e.key === 'ArrowRight') {
+        e.preventDefault();
+        revealNext();
+    }
+});
+
+initPresetButtons();
+</script>
+</body>
+</html>
