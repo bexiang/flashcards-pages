@@ -188,19 +188,21 @@ def _pages_base_url(username: str, repo_name: str) -> str:
 
 
 def cmd_publish_file(token: str, html_file: str, repo_name: str,
-                     project_name: str = None) -> int:
+                     project_name: str = None, repo_subdir: str = None) -> int:
     username = _get_username(token)
     _ensure_repo(token, username, repo_name)
 
     basename = os.path.basename(html_file)
-    name = project_name or os.path.splitext(basename)[0]
 
     # If project_name given, put file in a subdirectory as index.html
     if project_name:
-        repo_path = f"{name}/index.html"
+        repo_path = f"{project_name}/index.html"
+    elif repo_subdir:
+        repo_path = f"{repo_subdir}/{basename}"
     else:
         repo_path = basename
 
+    name = os.path.splitext(basename)[0]
     print(f"Uploading {repo_path} ...")
     _upload_file(token, username, repo_name, repo_path, html_file, f"Publish {name}")
 
@@ -243,6 +245,8 @@ def main() -> int:
                     help="Path to folder to publish (must contain index.html).")
     ap.add_argument("--project-name",
                     help="Name for the project/folder. Default: derived from input.")
+    ap.add_argument("--repo-subdir",
+                    help="Upload file into this subdirectory in the repo.")
     ap.add_argument("--repo-name", default=DEFAULT_REPO_NAME,
                     help=f"GitHub repo name (default: {DEFAULT_REPO_NAME}).")
     ap.add_argument("--token", help="GitHub Personal Access Token.")
@@ -266,7 +270,7 @@ def main() -> int:
         return cmd_init(token, args.repo_name)
 
     if args.html_file:
-        return cmd_publish_file(token, args.html_file, args.repo_name, args.project_name)
+        return cmd_publish_file(token, args.html_file, args.repo_name, args.project_name, args.repo_subdir)
 
     if args.upload_folder:
         return cmd_publish_folder(token, args.upload_folder, args.repo_name, args.project_name)
